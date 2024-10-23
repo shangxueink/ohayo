@@ -8,12 +8,17 @@
     "lib",
     "dist"
   ],
+  "contributors": [
+    "xiaozhedesu <xiaozhedesu0219@outlook.com>"
+  ],
   "license": "MIT",
+  "homepage": "https://github.com/xiaozhedesu/koishi-plugin-ohayo",
   "scripts": {},
   "keywords": [
     "chatbot",
     "koishi",
-    "plugin"
+    "plugin",
+    "ohayo"
   ],
   "devDependencies": {},
   "peerDependencies": {
