@@ -46,26 +46,46 @@ function dateToString(time: Date): string {
 }
 
 export function apply(ctx: Context) {
+  ctx.on('message', session => {
+    if (isOhayo(session.content)) {
+      session.execute('早安');
+    }
+  });
+
   /**
    * 实现早安功能
    */
-  ctx.on('message', session => {
-    if (isOhayo(session.content)) {
+  ctx.command('早安')
+    .action((_, message) => {
       const now: Date = new Date();
       const nowHour: number = now.getHours();
       if (nowHour < 6) {
-        session.send("早什么早，快去睡觉（早安时间在上午6点-12点）");
-        return;
+        return "早什么早，快去睡觉（早安时间在上午6点-12点）";
       }
       if (nowHour > 12) {
-        session.send("早什么早，不许早（早安时间在上午6点-12点）");
-        return;
+        return "早什么早，不许早（早安时间在上午6点-12点）";
       }
       const nowMinute: number = now.getMinutes();
-      session.send(ohayo[getRandomInt(0, ohayo.length - 1)] + "，现在是上午" + nowHour + "时" + nowMinute + "分，祝你有一个愉快的早晨。");
-      session.send(h('image', { src: "https://api.lolimi.cn/API/image-zw/api.php" }));  // 调用了一个早安图片api
-    }
-  });
+      return ohayo[getRandomInt(0, ohayo.length - 1)] + "，现在是上午" + nowHour + "时" + nowMinute + "分，祝你有一个愉快的早晨。"
+        + h('image', { src: "https://api.lolimi.cn/API/image-zw/api.php" });
+      // 调用了一个早安图片api
+    });
+
+  /**
+   * 实现简单的晚安功能
+   */
+  ctx.command('晚安')
+    .action((_, message) => {
+      const now: Date = new Date();
+      const nowHour: number = now.getHours();
+      if (nowHour <= 6) {
+        return '晚安，下次别熬夜了哦';
+      } else if (nowHour >= 18) {
+        return '晚安，好梦';
+      } else {
+        return '晚安时间为下午6点到次日早上6点哦';
+      }
+    });
 
   /** 
    * 报时指令，回复当前时间
@@ -88,6 +108,9 @@ export function apply(ctx: Context) {
       return "这边建议您选择 " + args[getRandomInt(0, args.length - 1)] + " 呢";
     });
 
+  /**
+   * 复读指令，让bot发送text的内容
+   */
   ctx.command('echo <text:message>').alias('复读')
     .action((_, message) => message);
 }
