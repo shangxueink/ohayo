@@ -1,4 +1,3 @@
-import { time } from 'console';
 import { Context, Schema, h } from 'koishi'
 
 export const name = 'ohayo'
@@ -7,7 +6,10 @@ export interface Config { }
 
 export const Config: Schema<Config> = Schema.object({})
 
-let ohayo = ['ohayo', '哦哈哟', '早', '早安呀', '你也早', '早上好', '早尚郝']
+/**
+ * 预设的早安回复语句
+ */
+const ohayo: string[] = ['ohayo', '哦哈哟', '早', '早安呀', '你也早', '早上好', '早尚郝']
 
 /**
  * 整数限制范围版随机数函数
@@ -23,7 +25,7 @@ function getRandomInt(min: number, max: number): number {
  * 早安判断函数,判断用户的输入满不满足回复条件
  */
 function isOhayo(message: string): boolean {
-  const ohayoMessage = ['早', '早上好', 'ohayo', '哦哈哟']
+  const ohayoMessage = ['早', '早上好', 'ohayo', '哦哈哟', 'zao']
   return ohayoMessage.indexOf(message) !== -1;
 }
 
@@ -51,17 +53,41 @@ export function apply(ctx: Context) {
     if (isOhayo(session.content)) {
       const now: Date = new Date();
       const nowHour: number = now.getHours();
-      if (nowHour < 6 || nowHour > 12) {
+      if (nowHour < 6) {
+        session.send("早什么早，快去睡觉（早安时间在上午6点-12点）");
+        return;
+      }
+      if (nowHour > 12) {
         session.send("早什么早，不许早（早安时间在上午6点-12点）");
+        return;
       }
       const nowMinute: number = now.getMinutes();
       session.send(ohayo[getRandomInt(0, ohayo.length - 1)] + "，现在是上午" + nowHour + "时" + nowMinute + "分，祝你有一个愉快的早晨。");
+      session.send(h('image', { src: "https://api.lolimi.cn/API/image-zw/api.php" }));  // 调用了一个早安图片api
     }
   });
 
+  /** 
+   * 报时指令，回复当前时间
+   */
   ctx.command('报时')
     .action((_, message) => {
       const now: Date = new Date();
       return dateToString(now);
     });
+
+  /**
+   * 随机选择指令，随机选中用户传入的参数中的一个返回，若没有参数则返回1-10的随机数
+   */
+  ctx.command('roll [..args]').alias('帮我选')
+    .action((_, ...args: string[]) => {
+      if (args.length === 0) {
+        return "这边建议您选择 " + getRandomInt(1, 10) + " 呢";
+      }
+
+      return "这边建议您选择 " + args[getRandomInt(0, args.length - 1)] + " 呢";
+    });
+
+  ctx.command('echo <text:message>').alias('复读')
+    .action((_, message) => message);
 }

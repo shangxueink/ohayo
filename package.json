@@ -1,5 +1,5 @@
 {
-  "name": "koishi-plugin-ohayo",
+  "name": "@xiaozhedesu/koishi-plugin-ohayo",
   "description": "早安呐~",
   "version": "0.0.1",
   "main": "lib/index.js",
