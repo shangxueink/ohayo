@@ -1,4 +1,5 @@
 import { Context, Schema, h } from 'koishi'
+import { getNiukeContest, getAtcoderContest } from './ACM'
 
 export const name = 'ohayo'
 
@@ -113,4 +114,36 @@ export function apply(ctx: Context) {
    */
   ctx.command('echo <text:message>').alias('复读')
     .action((_, message) => message);
+
+
+  ctx.command('算法竞赛').alias('acm')
+    .action(async (_, message) => {
+      return "最近的竞赛："
+        + "\n牛客： \n" + await getNiukeContest(0)
+        + "\nAtcoder： \n" + await getAtcoderContest(0);
+    })
+
+  ctx.command('牛客竞赛').alias('niuke')
+    .action(async (_, message) => {
+      let contests: string[] = ['', '', ''];
+      for (let i: number = 0; i < 3; i++) {
+        contests[i] = await getNiukeContest(i);
+      }
+      return '最近的牛客竞赛：\n'
+        + contests[0] + '\n'
+        + contests[1] + '\n'
+        + contests[2];
+    });
+
+  ctx.command('Atcoder竞赛').alias('atc')
+    .action(async (_, message) => {
+      let contests: string[] = ['', '', '']
+      for (let i: number = 0; i < 3; i++) {
+        contests[i] = await getAtcoderContest(i);
+      }
+      return '最近的Atcoder竞赛：\n'
+        + contests[0] + '\n'
+        + contests[1] + '\n'
+        + contests[2];
+    })
 }
