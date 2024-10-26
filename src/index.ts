@@ -116,13 +116,19 @@ export function apply(ctx: Context) {
     .action((_, message) => message);
 
 
+  /**
+   * 算法竞赛指令，调用相关函数获取支持查询的oj最近的一场竞赛，总结起来返回
+   */
   ctx.command('算法竞赛').alias('acm')
     .action(async (_, message) => {
       return "最近的竞赛："
         + "\n牛客： \n" + await getNiukeContest(0)
-        + "\nAtcoder： \n" + await getAtcoderContest(0);
+        + "\n\nAtcoder： \n" + await getAtcoderContest(0);
     })
 
+  /**
+   * 牛客竞赛指令，调用相关函数获取牛客竞赛最近的三场竞赛
+   */
   ctx.command('牛客竞赛').alias('niuke')
     .action(async (_, message) => {
       let contests: string[] = ['', '', ''];
@@ -130,11 +136,14 @@ export function apply(ctx: Context) {
         contests[i] = await getNiukeContest(i);
       }
       return '最近的牛客竞赛：\n'
-        + contests[0] + '\n'
-        + contests[1] + '\n'
+        + contests[0] + '\n\n'
+        + contests[1] + '\n\n'
         + contests[2];
     });
 
+  /**
+   * Atcoder竞赛指令，调用相关函数获取atc最近的三场竞赛
+   */
   ctx.command('Atcoder竞赛').alias('atc')
     .action(async (_, message) => {
       let contests: string[] = ['', '', '']
@@ -142,8 +151,8 @@ export function apply(ctx: Context) {
         contests[i] = await getAtcoderContest(i);
       }
       return '最近的Atcoder竞赛：\n'
-        + contests[0] + '\n'
-        + contests[1] + '\n'
+        + contests[0] + '\n\n'
+        + contests[1] + '\n\n'
         + contests[2];
     })
 }

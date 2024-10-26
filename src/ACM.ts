@@ -48,7 +48,13 @@ export async function getAtcoderContest(index: number) {
             const contest_name = contests[index].getElementsByTagName('a')[1];
             text += contest_name.innerHTML + '\n';
             const contests_time = contests[index].getElementsByTagName('a')[0].getElementsByTagName('time')[0];
-            text += contests_time.innerHTML;
+
+            // 将获取到的原始时间转换成牛客一样的倒计时
+            const date = new Date(contests_time.innerHTML);
+            const now = new Date();
+            const diff = new Date(date.getTime() - now.getTime());
+            text += ((diff.getDate() == 1) ? "今天" : (diff.getDate() - 1 + "天后")) + '     '
+                + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
         })
         .catch(error => console.error(error));
     return text;
