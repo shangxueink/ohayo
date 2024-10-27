@@ -63,7 +63,7 @@ export function apply(ctx: Context) {
       if (nowHour < 6) {
         return "早什么早，快去睡觉（早安时间在上午6点-12点）";
       }
-      if (nowHour > 12) {
+      if (nowHour >= 12) {
         return "早什么早，不许早（早安时间在上午6点-12点）";
       }
       const nowMinute: number = now.getMinutes();
@@ -79,7 +79,7 @@ export function apply(ctx: Context) {
     .action((_, message) => {
       const now: Date = new Date();
       const nowHour: number = now.getHours();
-      if (nowHour <= 6) {
+      if (nowHour < 6) {
         return '晚安，下次别熬夜了哦';
       } else if (nowHour >= 18) {
         return '晚安，好梦';
@@ -108,13 +108,6 @@ export function apply(ctx: Context) {
 
       return "这边建议您选择 " + args[getRandomInt(0, args.length - 1)] + " 呢";
     });
-
-  /**
-   * 复读指令，让bot发送text的内容
-   */
-  ctx.command('echo <text:message>').alias('复读')
-    .action((_, message) => message);
-
 
   /**
    * 算法竞赛指令，调用相关函数获取支持查询的oj最近的一场竞赛，总结起来返回
