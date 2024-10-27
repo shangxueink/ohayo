@@ -1,7 +1,7 @@
 {
   "name": "@xiaozhedesu/koishi-plugin-ohayo",
   "description": "早安呐~",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [

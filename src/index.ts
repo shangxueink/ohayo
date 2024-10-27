@@ -94,7 +94,8 @@ export function apply(ctx: Context) {
   /** 
    * 报时指令，回复当前时间
    */
-  ctx.command('报时')
+  ctx.command('报时', '回复当前时间')
+    .usage('使用北京时间')
     .action((_, message) => {
       const now: Date = new Date();
       return dateToString(now);
@@ -103,7 +104,8 @@ export function apply(ctx: Context) {
   /**
    * 随机选择指令，随机选中用户传入的参数中的一个返回，若没有参数则返回1-10的随机数
    */
-  ctx.command('roll [..args]').alias('帮我选')
+  ctx.command('帮我选 [..args]', '拿不定主意试试让bot帮你选吧').alias('roll')
+    .usage('将想要选择的选项使用空格隔开，bot将会随机选择其一，如果什么都不传则返回0-10之间的随机数')
     .action((_, ...args: string[]) => {
       if (args.length === 0) {
         return `这边建议您选择 ${getRandomInt(1, 10)} 呢`;
@@ -115,7 +117,9 @@ export function apply(ctx: Context) {
   /**
    * 算法竞赛指令，调用相关函数获取支持查询的oj最近的一场竞赛，总结起来返回
    */
-  ctx.command('算法竞赛').alias('acm')
+  ctx.command('算法竞赛', '查看最近竞赛').alias('acm')
+    .usage('目前支持查询的竞赛oj：牛客、Atcoder\n待支持查询的竞赛oj：CodeForces')
+    .usage('总查询只会查各个oj的最近一场竞赛，想看更多请单独查找')
     .action(async (_, message) => {
       return `最近的竞赛：\n牛客： \n${await getNiukeContest(0)}\n\nAtcoder： \n${await getAtcoderContest(0)}`;
     })
@@ -123,7 +127,8 @@ export function apply(ctx: Context) {
   /**
    * 牛客竞赛指令，调用相关函数获取牛客竞赛最近的三场竞赛
    */
-  ctx.command('牛客竞赛').alias('niuke')
+  ctx.command('牛客竞赛', '查看牛客最近竞赛').alias('niuke')
+    .usage('查询牛客竞赛的最近三场比赛')
     .action(async (_, message) => {
       let contests: string[] = ['', '', ''];
       for (let i: number = 0; i < 3; i++) {
@@ -135,7 +140,9 @@ export function apply(ctx: Context) {
   /**
    * Atcoder竞赛指令，调用相关函数获取atc最近的三场竞赛
    */
-  ctx.command('Atcoder竞赛').alias('atc')
+  ctx.command('Atcoder竞赛', '查看Atcoder最近竞赛').alias('atc')
+    .usage('查询Atcoder的最近三场比赛')
+    .usage('注：bot显示时间为北京时间，在Atcoder上看到的可能是日本时间或是别的什么时间，想参加竞赛务必确认好时间')
     .action(async (_, message) => {
       let contests: string[] = ['', '', '']
       for (let i: number = 0; i < 3; i++) {
