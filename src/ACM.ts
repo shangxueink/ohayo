@@ -20,7 +20,7 @@ export async function getNiukeContest(index: number) {
             const acm_list = doc.getElementsByClassName('acm-list');
             const acm_items = acm_list[0].getElementsByClassName('acm-item');
             const contest_name = acm_items[index].getElementsByTagName('a')[0];
-            text += contest_name.innerHTML + '\n';
+            text += `${contest_name.innerHTML}\n`;
             const contest_time = acm_items[index].getElementsByClassName('acm-item-time')[0];
             text += contest_time.innerHTML.trim();
         })
@@ -46,15 +46,14 @@ export async function getAtcoderContest(index: number) {
             const contest_upcoming_table = contest_upcoming.getElementsByTagName('table')[0];
             const contests = contest_upcoming_table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
             const contest_name = contests[index].getElementsByTagName('a')[1];
-            text += contest_name.innerHTML + '\n';
+            text += `${contest_name.innerHTML}\n`;
             const contests_time = contests[index].getElementsByTagName('a')[0].getElementsByTagName('time')[0];
 
             // 将获取到的原始时间转换成牛客一样的倒计时
             const date = new Date(contests_time.innerHTML);
             const now = new Date();
             const diff = new Date(date.getTime() - now.getTime());
-            text += ((diff.getDate() == 1) ? "今天" : (diff.getDate() - 1 + "天后")) + '     '
-                + String(date.getHours()).padStart(2, '0') + ':' + String(date.getMinutes()).padStart(2, '0');
+            text += `${(diff.getDate() == 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
         })
         .catch(error => console.error(error));
     return text;

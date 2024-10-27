@@ -19,6 +19,11 @@ const ohayo: string[] = ['ohayo', '哦哈哟', '早', '早安呀', '你也早', 
  * @returns 返回一个min-max之间的随机整数
  */
 function getRandomInt(min: number, max: number): number {
+  if (min > max) {
+    let tmp: number = min;
+    min = max;
+    max = tmp;
+  }
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
@@ -36,14 +41,13 @@ function isOhayo(message: string): boolean {
  * @returns 返回转换后的字符串
  */
 function dateToString(time: Date): string {
-  // 分行累加主要是方便读
-  let timeMessage: string = '现在是';
-  timeMessage += time.getFullYear() + '年';
-  timeMessage += (time.getMonth() + 1) + '月';
-  timeMessage += time.getDate() + '日，';
-  timeMessage += '星期' + ['日', '一', '二', '三', '四', '五', '六'][time.getDay()] + '，';
-  timeMessage += "北京时间" + time.getHours() + '点' + time.getMinutes() + '分';
-  return timeMessage;
+  const year: number = time.getFullYear();
+  const month: number = time.getMonth() + 1;
+  const date: number = time.getDate();
+  const day: string = ['日', '一', '二', '三', '四', '五', '六'][time.getDay()];
+  const hour: number = time.getHours();
+  const minute: number = time.getMinutes();
+  return `现在是${year}年${month}月${date}日，星期${day}，北京时间${hour}:${String(minute).padStart(2, '0')}。`;
 }
 
 export function apply(ctx: Context) {
@@ -67,8 +71,7 @@ export function apply(ctx: Context) {
         return "早什么早，不许早（早安时间在上午6点-12点）";
       }
       const nowMinute: number = now.getMinutes();
-      return ohayo[getRandomInt(0, ohayo.length - 1)] + "，现在是上午" + nowHour + "时" + nowMinute + "分，祝你有一个愉快的早晨。"
-        + h('image', { src: "https://api.lolimi.cn/API/image-zw/api.php" });
+      return `${ohayo[getRandomInt(0, ohayo.length - 1)]}，现在是上午${nowHour}时${nowMinute}分，祝你有一个愉快的早晨。\n${h('image', { src: "https://api.lolimi.cn/API/image-zw/api.php" })}`;
       // 调用了一个早安图片api
     });
 
@@ -103,10 +106,10 @@ export function apply(ctx: Context) {
   ctx.command('roll [..args]').alias('帮我选')
     .action((_, ...args: string[]) => {
       if (args.length === 0) {
-        return "这边建议您选择 " + getRandomInt(1, 10) + " 呢";
+        return `这边建议您选择 ${getRandomInt(1, 10)} 呢`;
       }
 
-      return "这边建议您选择 " + args[getRandomInt(0, args.length - 1)] + " 呢";
+      return `这边建议您选择 ${args[getRandomInt(0, args.length - 1)]} 呢`;
     });
 
   /**
@@ -114,9 +117,7 @@ export function apply(ctx: Context) {
    */
   ctx.command('算法竞赛').alias('acm')
     .action(async (_, message) => {
-      return "最近的竞赛："
-        + "\n牛客： \n" + await getNiukeContest(0)
-        + "\n\nAtcoder： \n" + await getAtcoderContest(0);
+      return `最近的竞赛：\n牛客： \n${await getNiukeContest(0)}\n\nAtcoder： \n${await getAtcoderContest(0)}`;
     })
 
   /**
@@ -128,10 +129,7 @@ export function apply(ctx: Context) {
       for (let i: number = 0; i < 3; i++) {
         contests[i] = await getNiukeContest(i);
       }
-      return '最近的牛客竞赛：\n'
-        + contests[0] + '\n\n'
-        + contests[1] + '\n\n'
-        + contests[2];
+      return `最近的牛客竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
     });
 
   /**
@@ -143,9 +141,6 @@ export function apply(ctx: Context) {
       for (let i: number = 0; i < 3; i++) {
         contests[i] = await getAtcoderContest(i);
       }
-      return '最近的Atcoder竞赛：\n'
-        + contests[0] + '\n\n'
-        + contests[1] + '\n\n'
-        + contests[2];
+      return `最近的Atcoder竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
     })
 }
