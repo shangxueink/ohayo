@@ -10,8 +10,15 @@ const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
  */
 export async function getNiukeContest(index: number) {
     let text = "";
-    await fetch("https://ac.nowcoder.com", { method: 'GET' })
-        .then(response => response.text())
+    const url = "https://ac.nowcoder.com";
+    await fetch(url, { method: 'GET' })
+        .then(response => {
+            if (response.status === 200) {
+                return response.text()
+            } else {
+                text = `HTTP:${response.status} error`;
+            }
+        })
         .then(htmlText => {
             // html文本转DOM
             const parser = new window.DOMParser();
@@ -24,7 +31,7 @@ export async function getNiukeContest(index: number) {
             const contest_time = acm_items[index].getElementsByClassName('acm-item-time')[0];
             text += contest_time.innerHTML.trim();
         })
-        .catch(error => console.error(error));
+        .catch(error => { console.log(error) });
     return text;
 }
 
@@ -35,8 +42,15 @@ export async function getNiukeContest(index: number) {
  */
 export async function getAtcoderContest(index: number) {
     let text = "";
-    await fetch("https://atcoder.jp/home?lang=ja", { method: 'GET' })
-        .then(response => response.text())
+    const url = 'https://atcoder.jp/home?lang=ja';
+    await fetch(url, { method: 'GET' })
+        .then(response => {
+            if (response.status === 200) {
+                return response.text()
+            } else {
+                text = `HTTP:${response.status} error`;
+            }
+        })
         .then(htmlText => {
             // html文本转DOM
             const parser = new window.DOMParser();
@@ -55,7 +69,7 @@ export async function getAtcoderContest(index: number) {
             const diff = new Date(date.getTime() - now.getTime());
             text += `${(diff.getDate() == 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
         })
-        .catch(error => console.error(error));
+        .catch(error => { console.log(error) });
     return text;
 }
 
@@ -69,7 +83,11 @@ export async function getAtcoderProfile(userName: string) {
     const url = `https://atcoder.jp/users/${userName}`;
     await fetch(url)
         .then(response => {
-            return response.text()
+            if (response.status === 200) {
+                return response.text()
+            } else {
+                text = `HTTP:${response.status} error`;
+            }
         })
         .then(htmlText => {
             const parser = new window.DOMParser();
@@ -81,17 +99,17 @@ export async function getAtcoderProfile(userName: string) {
             text += `用户名：${name.innerHTML}\n`;
 
             const content = main_div.getElementsByTagName('div')[2].getElementsByTagName('table')[0];
-            const now_rating = content.getElementsByTagName('span')[0];
+            const now_rating = content.getElementsByTagName('td')[1].getElementsByTagName('span')[0];
             text += `当前rating：${now_rating.innerHTML}\n`
-            const highest_rating = content.getElementsByTagName('span')[1];
+            const highest_rating = content.getElementsByTagName('td')[2].getElementsByTagName('span')[0];
             text += `最高rating：${highest_rating.innerHTML}\n`
 
             const rank = content.getElementsByTagName('td')[0];
             text += `排名：${rank.innerHTML}\n`
 
-            if (parseInt(now_rating.innerHTML) > 2000)
+            if (parseInt(now_rating.innerHTML) >= 2000)
                 text += "大神啊！";
         })
-        .catch(error => console.log(error));
+        .catch(error => { console.log(error) });
     return text;
 }
