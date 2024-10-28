@@ -1,5 +1,5 @@
 import { Context, Schema, h } from 'koishi'
-import { getNiukeContest, getAtcoderContest } from './ACM'
+import { getNiukeContest, getAtcoderContest, getAtcoderProfile } from './ACM'
 
 export const name = 'ohayo'
 
@@ -149,5 +149,16 @@ export function apply(ctx: Context) {
         contests[i] = await getAtcoderContest(i);
       }
       return `最近的Atcoder竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
+    })
+
+  /**
+   * 查询Atcoder用户的个人信息
+   * 有待添加默认值功能
+   */
+  ctx.command('Atcoder个人信息 <userName:string>', '查询Atcoder上指定用户的信息')
+    .usage('目前是不传参就查不到数据的状态')
+    .action(async (_, userName: string) => {
+      if (userName === undefined) return '给个名字吧朋友，不然我查谁呢';
+      return await getAtcoderProfile(userName);
     })
 }

@@ -58,3 +58,40 @@ export async function getAtcoderContest(index: number) {
         .catch(error => console.error(error));
     return text;
 }
+
+/**
+ * 查询Atcoder用户的个人信息
+ * @param userName Atcoder中的用户名
+ * @returns 查询后的字符串
+ */
+export async function getAtcoderProfile(userName: string) {
+    let text = "Atcoder Profile:\n";
+    const url = `https://atcoder.jp/users/${userName}`;
+    await fetch(url)
+        .then(response => {
+            return response.text()
+        })
+        .then(htmlText => {
+            const parser = new window.DOMParser();
+            const doc: Document = parser.parseFromString(htmlText, 'text/html');
+
+            const main = doc.getElementById('main-container');
+            const main_div = main.getElementsByTagName('div')[0];
+            const name = main_div.getElementsByTagName('div')[1].getElementsByTagName('span')[0];
+            text += `用户名：${name.innerHTML}\n`;
+
+            const content = main_div.getElementsByTagName('div')[2].getElementsByTagName('table')[0];
+            const now_rating = content.getElementsByTagName('span')[0];
+            text += `当前rating：${now_rating.innerHTML}\n`
+            const highest_rating = content.getElementsByTagName('span')[1];
+            text += `最高rating：${highest_rating.innerHTML}\n`
+
+            const rank = content.getElementsByTagName('td')[0];
+            text += `排名：${rank.innerHTML}\n`
+
+            if (parseInt(now_rating.innerHTML) > 2000)
+                text += "大神啊！";
+        })
+        .catch(error => console.log(error));
+    return text;
+}
