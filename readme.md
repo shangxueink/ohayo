@@ -13,6 +13,7 @@
 - 牛客竞赛 查看牛客最近竞赛
 - Atcoder竞赛 查看Atcoder最近竞赛
 - Atcoder个人信息 查询Atcoder上指定用户的信息
+- CodeForces竞赛(未实现)
+- CodeForces个人信息 查询CodeForces上指定用户的信息
 - 报时 回复当前时间
 - 帮我选 拿不定主意试试让bot帮你选吧
-- CodeForces竞赛(未实现)

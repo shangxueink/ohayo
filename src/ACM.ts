@@ -1,4 +1,5 @@
 import { JSDOM } from 'jsdom'
+import { CodeforcesAPI } from "codeforces-api-ts"
 
 // html转DOM元素进行操作的依赖
 const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
@@ -111,5 +112,49 @@ export async function getAtcoderProfile(userName: string) {
                 text += "大神啊！";
         })
         .catch(error => { console.log(error) });
+    return text;
+}
+
+/**
+ * 查询CodeForces用户的个人信息
+ * @param userName 用户名
+ * @param key cf网站使用api需要的key
+ * @param secret cf网站使用api需要的secret
+ * @returns 查询后的字符串
+ */
+export async function getCodeForcesProfile(userName: string, key: string, secret: string) {
+    let text = "CodeForces Profile:\n";
+    CodeforcesAPI.setCredentials({
+        API_KEY: key,
+        API_SECRET: secret,
+    });
+
+    await CodeforcesAPI.call("user.info", { handles: userName }).then(response => {
+        if (response.status === "OK") {
+            const user = response.result[0];
+            if (user.rating === undefined) {
+                text = "此用户不存在";
+                return;
+            }
+            text += `name: ${user.handle}\n`
+            text += `rating: ${user.rating}\n`
+            text += `rank: ${user.rank}\n`
+            text += `maxRating: ${user.maxRating}\n`
+            text += `maxRank: ${user.maxRank}\n`
+            if (user.rating >= 2600) {
+                text += '大神啊！'
+            }
+        } else {
+            if (response.comment === "apiKey: Incorrect signature") {
+                text = "配置项的secret不正确"
+            } else if (response.comment === "apiKey: Incorrect API key") {
+                text = "配置项的key不正确"
+            } else if (response.comment === "handles: Field should not be empty") {
+                text = "用户名不能为空值"
+            } else {
+                text = response.comment;
+            }
+        }
+    }).catch(error => console.error(error));
     return text;
 }

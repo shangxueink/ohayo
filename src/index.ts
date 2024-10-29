@@ -1,11 +1,18 @@
 import { Context, Schema, h } from 'koishi'
-import { getNiukeContest, getAtcoderContest, getAtcoderProfile } from './ACM'
+import { getNiukeContest, getAtcoderContest, getAtcoderProfile, getCodeForcesProfile } from './ACM'
 
 export const name = 'ohayo'
 
-export interface Config { }
+export interface Config {
+  codeforcesKey: string
+  codeforcesSecret: string
+}
 
-export const Config: Schema<Config> = Schema.object({})
+export const Config: Schema<Config> = Schema.object({
+  codeforcesKey: Schema.string().role('secret'),
+  codeforcesSecret: Schema.string().role('secret')
+})
+
 
 /**
  * 预设的早安回复语句
@@ -50,7 +57,12 @@ function dateToString(time: Date): string {
   return `现在是${year}年${month}月${date}日，星期${day}，北京时间${hour}:${String(minute).padStart(2, '0')}。`;
 }
 
-export function apply(ctx: Context) {
+/**
+ * 插件主体
+ * @param ctx 
+ * @param config 配置参数
+ */
+export function apply(ctx: Context, config: Config) {
   ctx.on('message', session => {
     if (isOhayo(session.content)) {
       session.execute('早安');
@@ -166,4 +178,14 @@ export function apply(ctx: Context) {
 
       return await getAtcoderProfile(userName);
     })
+
+  /**
+   * 查询CodeForces用户的个人信息
+   */
+  ctx.command('CodeForces个人信息 <userName:string>', '查询CodeForces上指定用户的信息').alias('cfprofile')
+    .action(async (_, userName) => {
+      const key = config.codeforcesKey;
+      const secret = config.codeforcesSecret;
+      return getCodeForcesProfile(userName, key, secret);
+    });
 }
