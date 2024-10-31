@@ -36,8 +36,10 @@ export namespace Niuke {
                 text += `${contest_name.innerHTML}\n`;
                 const contest_time = acm_items[index].getElementsByClassName('acm-item-time')[0];
                 text += contest_time.innerHTML.trim();
-            })
-            .catch(error => { console.log(error) });
+            }).catch(error => {
+                console.error(error)
+                text = error.toString();
+            });
         return text;
     }
 }
@@ -79,8 +81,10 @@ export namespace Atcoder {
                 const now = new Date();
                 const diff = new Date(date.getTime() - now.getTime());
                 text += `${(diff.getDate() == 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-            })
-            .catch(error => { console.log(error) });
+            }).catch(error => {
+                console.error(error)
+                text = error.toString();
+            });
         return text;
     }
 
@@ -120,8 +124,10 @@ export namespace Atcoder {
 
                 if (parseInt(now_rating.innerHTML) >= 2000)
                     text += "大神啊！";
-            })
-            .catch(error => { console.log(error) });
+            }).catch(error => {
+                console.error(error)
+                text = error.toString();
+            });
         return text;
     }
 }
@@ -161,7 +167,10 @@ export namespace Codeforces {
                 } else {
                     text = response.comment;
                 }
-            })
+            }).catch(error => {
+                console.error(error)
+                text = error.toString();
+            });
         return text;
     }
 
@@ -205,7 +214,10 @@ export namespace Codeforces {
                     text = response.comment;
                 }
             }
-        }).catch(error => console.error(error));
+        }).catch(error => {
+            console.error(error)
+            text = error.toString();
+        });
         return text;
     }
 }
