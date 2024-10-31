@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom'
 import { CodeforcesAPI } from "codeforces-api-ts"
 import { Contest } from 'codeforces-api-ts/dist/types';
+import exp from 'constants';
 
 // html转DOM元素进行操作的依赖
 const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
@@ -36,6 +37,92 @@ export namespace Niuke {
                 text += `${contest_name.innerHTML}\n`;
                 const contest_time = acm_items[index].getElementsByClassName('acm-item-time')[0];
                 text += contest_time.innerHTML.trim();
+            }).catch(error => {
+                console.error(error)
+                text = error.toString();
+            });
+        return text;
+    }
+
+    /**
+     * 查询牛客竞赛用户的个人信息
+     * @param userName 用户名
+     * @returns 查询后的字符串
+     */
+    export async function getNiukeProfile(userName: string) {
+        let text = "Niuke Profile:\n"
+
+        // 根据用户名获取用户ID
+        let userID = ""
+        await fetch(`https://ac.nowcoder.com/acm/contest/rating-index?searchUserName=${userName}`)
+            .then(response => {
+                if (response.status === 200) {
+                    return response.text()
+                } else {
+                    text = `HTTP:${response.status} error`;
+                }
+            })
+            .then(htmlText => {
+                // html文本转DOM
+                const parser = new window.DOMParser();
+                const doc: Document = parser.parseFromString(htmlText, 'text/html');
+
+                const table = doc.getElementsByTagName('table')[0];
+                const td = table.getElementsByTagName('tr')[1].getElementsByTagName('td')[1];
+                let profileURL = td.getElementsByTagName('a')[0].getAttribute('href').split('/');
+                userID = profileURL[profileURL.length - 1];
+            }).catch(error => {
+                console.error(error)
+                text = error.toString();
+            });
+
+        await fetch(`https://ac.nowcoder.com/acm/contest/profile/${userID}`)
+            .then(response => {
+                if (response.status === 200) {
+                    return response.text()
+                } else {
+                    text = `HTTP:${response.status} error`;
+                }
+            })
+            .then(htmlText => {
+                // html文本转DOM
+                const parser = new window.DOMParser();
+                const doc: Document = parser.parseFromString(htmlText, 'text/html');
+
+                const user = doc.getElementsByClassName('coder-info-wrap clearfix')[0];
+                text += `昵称: ${userName}\n`;
+                // const rating = user.getElementsByClassName('status-item')[0].getElementsByTagName('a')[0].innerHTML;
+                // const rank = user.getElementsByClassName('status-item')[1].getElementsByTagName('a')[0].innerHTML;
+
+                const contest_state_items = doc.getElementsByClassName('my-state-main')[0].getElementsByClassName('my-state-item');
+                const rating = contest_state_items[0].getElementsByTagName('div')[0].innerHTML;
+                const rank = contest_state_items[1].getElementsByTagName('div')[0].innerHTML;
+                text += `rating: ${rating}\n`;
+                const contest_number_rated = contest_state_items[2].getElementsByTagName('div')[0].innerHTML;
+                text += `排名: ${rank}名\n`;
+                const contest_number_unrated = contest_state_items[3].getElementsByTagName('div')[0].innerHTML;
+                text += `参与场次：Rated${contest_number_rated}场，Unrated${contest_number_unrated}场\n`
+            }).catch(error => {
+                console.error(error)
+                text = error.toString();
+            });
+
+        await fetch(`https://ac.nowcoder.com/acm/contest/profile/${userID}/practice-coding`)
+            .then(response => {
+                if (response.status === 200) {
+                    return response.text()
+                } else {
+                    text = `HTTP:${response.status} error`;
+                }
+            })
+            .then(htmlText => {
+                // html文本转DOM
+                const parser = new window.DOMParser();
+                const doc: Document = parser.parseFromString(htmlText, 'text/html');
+
+                const state_items = doc.getElementsByClassName('my-state-main')[0].getElementsByClassName('my-state-item');
+                const pass_number = state_items[1].getElementsByTagName('div')[0].innerHTML;
+                text += `已过题数：${pass_number}\n`
             }).catch(error => {
                 console.error(error)
                 text = error.toString();

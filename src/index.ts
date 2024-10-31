@@ -129,6 +129,11 @@ export function apply(ctx: Context, config: Config) {
       return `最近的牛客竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
     });
 
+  ctx.command('牛客个人信息 <userName:string>', '查询牛客上指定用户的信息').alias('niukeProfile')
+    .action(async (_, userName) => {
+      return Niuke.getNiukeProfile(userName);
+    })
+
   /**
    * Atcoder竞赛指令，调用相关函数获取Atcoder最近的三场竞赛
    */
