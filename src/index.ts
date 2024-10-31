@@ -34,6 +34,8 @@ function isOhayo(message: string): boolean {
  * @param config 配置参数
  */
 export function apply(ctx: Context, config: Config) {
+  Codeforces.setCredentials(config.codeforcesKey, config.codeforcesSecret);
+
   ctx.on('message', session => {
     if (isOhayo(session.content)) {
       session.execute('早安');
@@ -112,7 +114,7 @@ export function apply(ctx: Context, config: Config) {
     .action(async (_, message) => {
       const key = config.codeforcesKey;
       const secret = config.codeforcesSecret;
-      return `最近的竞赛：\n牛客： \n${await Niuke.getNiukeContest(0)}\n\nAtcoder： \n${await Atcoder.getAtcoderContest(0)}\n\nCodeforces：\n${await Codeforces.getCodeForcesContest(0, key, secret)}`;
+      return `最近的竞赛：\n牛客： \n${await Niuke.getContest(0)}\n\nAtcoder： \n${await Atcoder.getContest(0)}\n\nCodeforces：\n${await Codeforces.getContest(0)}`;
     })
 
   /**
@@ -123,7 +125,7 @@ export function apply(ctx: Context, config: Config) {
     .action(async (_, message) => {
       let contests: string[] = ['', '', ''];
       for (let i: number = 0; i < 3; i++) {
-        contests[i] = await Niuke.getNiukeContest(i);
+        contests[i] = await Niuke.getContest(i);
       }
 
       return `最近的牛客竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
@@ -131,7 +133,7 @@ export function apply(ctx: Context, config: Config) {
 
   ctx.command('牛客个人信息 <userName:string>', '查询牛客上指定用户的信息').alias('niukeProfile')
     .action(async (_, userName) => {
-      return Niuke.getNiukeProfile(userName);
+      return Niuke.getProfile(userName);
     })
 
   /**
@@ -143,7 +145,7 @@ export function apply(ctx: Context, config: Config) {
     .action(async (_, message) => {
       let contests: string[] = ['', '', '']
       for (let i: number = 0; i < 3; i++) {
-        contests[i] = await Atcoder.getAtcoderContest(i);
+        contests[i] = await Atcoder.getContest(i);
       }
 
       return `最近的Atcoder竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
@@ -159,7 +161,7 @@ export function apply(ctx: Context, config: Config) {
         return '给个名字吧朋友，不然我查谁呢';
       }
 
-      return await Atcoder.getAtcoderProfile(userName);
+      return await Atcoder.getProfile(userName);
     })
 
   /**
@@ -172,7 +174,7 @@ export function apply(ctx: Context, config: Config) {
       const secret = config.codeforcesSecret;
       let contests: string[] = ['', '', ''];
       for (let i: number = 0; i < 3; i++) {
-        contests[i] = await Codeforces.getCodeForcesContest(i, key, secret);
+        contests[i] = await Codeforces.getContest(i);
       }
 
       return `最近的Codeforces竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
@@ -186,6 +188,6 @@ export function apply(ctx: Context, config: Config) {
     .action(async (_, userName) => {
       const key = config.codeforcesKey;
       const secret = config.codeforcesSecret;
-      return Codeforces.getCodeForcesProfile(userName, key, secret);
+      return Codeforces.getProfile(userName);
     });
 }
