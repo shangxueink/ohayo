@@ -212,8 +212,9 @@ export namespace Atcoder {
         toString() {
             let res: string = '';
             res += `${this.contest_name}\n`
-            const diff: Date = new Date(new Date().getMilliseconds() - this.time.getMilliseconds());
-            res += `${(diff.getDate() == 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(this.time.getHours()).padStart(2, '0')}:${String(this.time.getMinutes()).padStart(2, '0')}`;
+            const now: Date = new Date();
+            const diff: Date = new Date(this.time.getTime() - now.getTime());
+            res += `${(diff.getDate() === 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(this.time.getHours()).padStart(2, '0')}:${String(this.time.getMinutes()).padStart(2, '0')}`;
             return res;
         }
     }
