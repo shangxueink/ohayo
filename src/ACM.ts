@@ -48,7 +48,7 @@ export namespace Niuke {
      * @returns 查询后的字符串
      */
     export async function getContest(index: number) {
-        let text = "";
+        let message = "";
         let contest = new Contest();
         const url = "https://ac.nowcoder.com";
         await fetch(url, { method: 'GET' })
@@ -56,7 +56,7 @@ export namespace Niuke {
                 if (response.status === 200) {
                     return response.text()
                 } else {
-                    text = `HTTP:${response.status} error`;
+                    message = `HTTP:${response.status} error`;
                 }
             })
             .then(htmlText => {
@@ -70,10 +70,10 @@ export namespace Niuke {
                 contest.countdown = acm_items[index].getElementsByClassName('acm-item-time')[0].innerHTML.trim();
             }).catch(error => {
                 console.error(error)
-                text = error.toString();
+                message = error.toString();
             });
-        text += contest.toString();
-        return text;
+        message += contest.toString();
+        return message;
     }
 
     /**
@@ -225,14 +225,14 @@ export namespace Atcoder {
      * @returns 查询后的字符串
      */
     export async function getContest(index: number) {
-        let text = "";
+        let message = "";
         let contest: Contest = new Contest();
         await fetch('https://atcoder.jp/home?lang=ja')
             .then(response => {
                 if (response.status === 200) {
                     return response.text()
                 } else {
-                    text = `HTTP:${response.status} error`;
+                    message = `HTTP:${response.status} error`;
                 }
             })
             .then(htmlText => {
@@ -248,10 +248,10 @@ export namespace Atcoder {
                 contest.time = new Date(contests_time.innerHTML);
             }).catch(error => {
                 console.error(error)
-                text = error.toString();
+                message = error.toString();
             });
-        text += contest.toString();
-        return text;
+        message += contest.toString();
+        return message;
     }
 
     /**
@@ -363,7 +363,7 @@ export namespace Codeforces {
      * @returns 查询后的字符串
      */
     export async function getContest(index: number) {
-        let text = "";
+        let message = "";
 
         await CodeforcesAPI.call("contest.list", {})
             .then(response => {
@@ -374,19 +374,18 @@ export namespace Codeforces {
                         begin++;
                     }
 
-                    text += `${contests[begin - index].name}\n`;
+                    message += `${contests[begin - index].name}\n`;
                     const date: Date = new Date(contests[begin - index].startTimeSeconds * 1000);
-                    const now = new Date();
                     const diff = new Date(Math.abs(contests[begin - index].relativeTimeSeconds * 1000));
-                    text += `${(diff.getDate() == 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                    message += `${(diff.getDate() === 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
                 } else {
-                    text = response.comment;
+                    message = response.comment;
                 }
             }).catch(error => {
                 console.error(error)
-                text = error.toString();
+                message = error.toString();
             });
-        return text;
+        return message;
     }
 
     /**

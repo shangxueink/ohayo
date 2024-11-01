@@ -5,15 +5,17 @@ import { Tools } from './Tools'
 export const name = 'ohayo'
 
 export interface Config {
-  codeforcesKey: string
-  codeforcesSecret: string
+  key: string
+  secret: string
 }
 
 // 参数
 export const Config: Schema<Config> = Schema.object({
-  codeforcesKey: Schema.string().role('secret'),
-  codeforcesSecret: Schema.string().role('secret')
-})
+  key: Schema.string().role('secret')
+    .description('从Codeforces上获取的使用官方api使用的key'),
+  secret: Schema.string().role('secret')
+    .description('从Codeforces上获取的使用官方api使用的secret')
+}).description('Codeforces访问设置');
 
 /**
  * 预设的早安回复语句
@@ -34,7 +36,7 @@ function isOhayo(message: string): boolean {
  * @param config 配置参数
  */
 export function apply(ctx: Context, config: Config) {
-  Codeforces.setCredentials(config.codeforcesKey, config.codeforcesSecret);
+  Codeforces.setCredentials(config.key, config.secret);
 
   ctx.on('message', session => {
     if (isOhayo(session.content)) {
@@ -112,8 +114,6 @@ export function apply(ctx: Context, config: Config) {
     .usage('目前支持查询的竞赛oj：牛客、Atcoder、CodeForces')
     .usage('总查询只会查各个oj的最近一场竞赛，想看更多请单独查找')
     .action(async (_, message) => {
-      const key = config.codeforcesKey;
-      const secret = config.codeforcesSecret;
       return `最近的竞赛：\n牛客： \n${await Niuke.getContest(0)}\n\nAtcoder： \n${await Atcoder.getContest(0)}\n\nCodeforces：\n${await Codeforces.getContest(0)}`;
     })
 
@@ -170,8 +170,6 @@ export function apply(ctx: Context, config: Config) {
   ctx.command('Codeforces竞赛', '查看Codeforces最近竞赛').alias('cf')
     .usage('查询Codeforces竞赛的最近三场比赛')
     .action(async (_, message) => {
-      const key = config.codeforcesKey;
-      const secret = config.codeforcesSecret;
       let contests: string[] = ['', '', ''];
       for (let i: number = 0; i < 3; i++) {
         contests[i] = await Codeforces.getContest(i);
@@ -186,8 +184,6 @@ export function apply(ctx: Context, config: Config) {
    */
   ctx.command('Codeforces个人信息 <userName:string>', '查询Codeforces上指定用户的信息').alias('cfprofile')
     .action(async (_, userName) => {
-      const key = config.codeforcesKey;
-      const secret = config.codeforcesSecret;
       return Codeforces.getProfile(userName);
     });
 }
