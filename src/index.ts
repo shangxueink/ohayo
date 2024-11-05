@@ -178,7 +178,6 @@ export function apply(ctx: Context, config: Config) {
       return `最近的Codeforces竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
     });
 
-
   /**
    * 查询CodeForces用户的个人信息
    */

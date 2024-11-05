@@ -372,8 +372,14 @@ export namespace Codeforces {
                     while (contests[begin + 1].phase !== 'FINISHED') {
                         begin++;
                     }
-
-                    message += `${contests[begin - index].name}\n`;
+                    let name: string = contests[begin - index].name;
+                    for (let i: number = 0; i < name.length - 1; i++) {
+                        if (name[i] === '.' && name[i + 1] !== ' ') {
+                            // 此举是为了防止竞赛名含有url被qq识别然后被ban
+                            name = name.slice(0, i + 1) + ' ' + name.slice(i + 1);
+                        }
+                    }
+                    message += `${name}\n`;
                     const date: Date = new Date(contests[begin - index].startTimeSeconds * 1000);
                     const diff = new Date(Math.abs(contests[begin - index].relativeTimeSeconds * 1000));
                     message += `${(diff.getDate() === 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
