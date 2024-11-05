@@ -10,35 +10,35 @@ const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
  */
 export namespace Niuke {
     class UserProfile {
-        user_name: string;
+        userName: string;
         userID: string;
         rating: number;
         rank: string;
-        contest_number_rated: number;
-        contest_number_unrated: number;
-        pass_number: number;
+        contestNumberRated: number;
+        contestNumberUnrated: number;
+        passNumber: number;
 
-        constructor(user_name: string) {
-            this.user_name = user_name;
+        constructor(userName: string) {
+            this.userName = userName;
         }
 
         toString() {
             let res: string = "";
-            res += `昵称: ${this.user_name}\n`;
+            res += `昵称: ${this.userName}\n`;
             res += `rating: ${this.rating}\n`;
             res += `排名: ${this.rank}名\n`;
-            res += `参与场次：Rated${this.contest_number_rated}场，Unrated${this.contest_number_unrated}场\n`
-            res += `已过题数：${this.pass_number}\n`
+            res += `参与场次：Rated${this.contestNumberRated}场，Unrated${this.contestNumberUnrated}场\n`
+            res += `已过题数：${this.passNumber}\n`
             return res;
         }
     }
 
     class Contest {
-        contest_name: string;
+        contestName: string;
         countdown: string;
 
         toString() {
-            return `${this.contest_name}\n${this.countdown}`;
+            return `${this.contestName}\n${this.countdown}`;
         }
     }
 
@@ -64,10 +64,10 @@ export namespace Niuke {
                 const parser = new window.DOMParser();
                 const doc: Document = parser.parseFromString(htmlText, 'text/html');
 
-                const acm_list = doc.getElementsByClassName('acm-list');
-                const acm_items = acm_list[0].getElementsByClassName('acm-item');
-                contest.contest_name = acm_items[index].getElementsByTagName('a')[0].innerHTML;
-                contest.countdown = acm_items[index].getElementsByClassName('acm-item-time')[0].innerHTML.trim();
+                const acmList = doc.getElementsByClassName('acm-list');
+                const acmItems = acmList[0].getElementsByClassName('acm-item');
+                contest.contestName = acmItems[index].getElementsByTagName('a')[0].innerHTML;
+                contest.countdown = acmItems[index].getElementsByClassName('acm-item-time')[0].innerHTML.trim();
             }).catch(error => {
                 console.error(error)
                 message = error.toString();
@@ -78,14 +78,14 @@ export namespace Niuke {
 
     /**
      * 通过用户名获取用户在牛客上的刷题/竞赛数据
-     * @param user UserProfile对象，user_name需要提前存入
+     * @param user UserProfile对象，userName需要提前存入
      * @returns 异步程序的执行状态，无异常返回'OK'，否则返回错误信息
      */
     async function getProfileData(user: UserProfile) {
         let status: string = 'OK';
         // 通过用户名获取用户ID
         // 需要6个月内参加过一场牛客竞赛才能查到
-        await fetch(`https://ac.nowcoder.com/acm/contest/rating-index?searchUserName=${user.user_name}`)
+        await fetch(`https://ac.nowcoder.com/acm/contest/rating-index?searchUserName=${user.userName}`)
             .then(response => {
                 if (response.status === 200) {
                     return response.text()
@@ -126,12 +126,12 @@ export namespace Niuke {
                 const parser = new window.DOMParser();
                 const doc: Document = parser.parseFromString(htmlText, 'text/html');
 
-                const contest_state_items = doc.getElementsByClassName('my-state-main')[0].getElementsByClassName('my-state-item');
-                const rating = contest_state_items[0].getElementsByTagName('div')[0].innerHTML;
+                const contestStateItems = doc.getElementsByClassName('my-state-main')[0].getElementsByClassName('my-state-item');
+                const rating = contestStateItems[0].getElementsByTagName('div')[0].innerHTML;
                 user.rating = parseInt(rating);
-                user.rank = contest_state_items[1].getElementsByTagName('div')[0].innerHTML;
-                user.contest_number_rated = parseInt(contest_state_items[2].getElementsByTagName('div')[0].innerHTML);
-                user.contest_number_unrated = parseInt(contest_state_items[3].getElementsByTagName('div')[0].innerHTML);
+                user.rank = contestStateItems[1].getElementsByTagName('div')[0].innerHTML;
+                user.contestNumberRated = parseInt(contestStateItems[2].getElementsByTagName('div')[0].innerHTML);
+                user.contestNumberUnrated = parseInt(contestStateItems[3].getElementsByTagName('div')[0].innerHTML);
             }).catch(error => {
                 console.error(error)
                 status = error.toString();
@@ -151,8 +151,8 @@ export namespace Niuke {
                 const parser = new window.DOMParser();
                 const doc: Document = parser.parseFromString(htmlText, 'text/html');
 
-                const state_items = doc.getElementsByClassName('my-state-main')[0].getElementsByClassName('my-state-item');
-                user.pass_number = parseInt(state_items[1].getElementsByTagName('div')[0].innerHTML);
+                const stateItems = doc.getElementsByClassName('my-state-main')[0].getElementsByClassName('my-state-item');
+                user.passNumber = parseInt(stateItems[1].getElementsByTagName('div')[0].innerHTML);
             }).catch(error => {
                 console.error(error)
                 status = error.toString();
@@ -182,23 +182,23 @@ export namespace Niuke {
  */
 export namespace Atcoder {
     class UserProfile {
-        user_name: string
-        now_rating: number
-        highest_rating: number
+        userName: string
+        nowRating: number
+        maxRating: number
         rank: string
-        contest_number: number
+        contestNumber: number
 
-        constructor(user_name: string) {
-            this.user_name = user_name;
+        constructor(userName: string) {
+            this.userName = userName;
         }
 
         toString() {
-            let res: string = `用户名：${this.user_name}\n`
-            res += `当前rating：${this.now_rating}\n`
-            res += `最高rating：${this.highest_rating}\n`
+            let res: string = `用户名：${this.userName}\n`
+            res += `当前rating：${this.nowRating}\n`
+            res += `最高rating：${this.maxRating}\n`
             res += `排名：${this.rank}\n`
-            res += `参与场次：Rated${this.contest_number}场`
-            if (this.now_rating >= 2000) {
+            res += `参与场次：Rated${this.contestNumber}场`
+            if (this.nowRating >= 2000) {
                 res += '大神啊！\n';
             }
             return res;
@@ -206,12 +206,12 @@ export namespace Atcoder {
     }
 
     class Contest {
-        contest_name: string;
+        contestName: string;
         time: Date;
 
         toString() {
             let res: string = '';
-            res += `${this.contest_name}\n`
+            res += `${this.contestName}\n`
             const now: Date = new Date();
             const diff: Date = new Date(this.time.getTime() - now.getTime());
             res += `${(diff.getDate() === 1) ? "今天" : (diff.getDate() - 1 + "天后")}     ${String(this.time.getHours()).padStart(2, '0')}:${String(this.time.getMinutes()).padStart(2, '0')}`;
@@ -240,12 +240,12 @@ export namespace Atcoder {
                 const parser = new window.DOMParser();
                 const doc: Document = parser.parseFromString(htmlText, 'text/html');
 
-                const contest_upcoming = doc.getElementById('contest-table-upcoming');
-                const contest_upcoming_table = contest_upcoming.getElementsByTagName('table')[0];
-                const contests = contest_upcoming_table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-                contest.contest_name = contests[index].getElementsByTagName('a')[1].innerHTML;
-                const contests_time = contests[index].getElementsByTagName('a')[0].getElementsByTagName('time')[0];
-                contest.time = new Date(contests_time.innerHTML);
+                const contestUpcoming = doc.getElementById('contest-table-upcoming');
+                const contestUpcomingTable = contestUpcoming.getElementsByTagName('table')[0];
+                const contests = contestUpcomingTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+                contest.contestName = contests[index].getElementsByTagName('a')[1].innerHTML;
+                const contestTime = contests[index].getElementsByTagName('a')[0].getElementsByTagName('time')[0];
+                contest.time = new Date(contestTime.innerHTML);
             }).catch(error => {
                 console.error(error)
                 message = error.toString();
@@ -256,12 +256,12 @@ export namespace Atcoder {
 
     /**
      * 通过用户名获取用户在Atcoder上的竞赛数据
-     * @param user UserProfile对象，user_name需要提前存入
+     * @param user UserProfile对象，userName需要提前存入
      * @returns 异步程序的执行状态，无异常返回'OK'，否则返回错误信息
      */
     async function getProfileData(user: UserProfile) {
         let status = 'OK'
-        await fetch(`https://atcoder.jp/users/${user.user_name}`)
+        await fetch(`https://atcoder.jp/users/${user.userName}`)
             .then(response => {
                 if (response.status === 200) {
                     return response.text()
@@ -274,16 +274,15 @@ export namespace Atcoder {
                 // html文本转DOM
                 const parser = new window.DOMParser();
                 const doc: Document = parser.parseFromString(htmlText, 'text/html');
-                const title = doc.getElementsByTagName('head')[0].innerHTML;
 
                 const main = doc.getElementById('main-container');
-                const main_div = main.getElementsByTagName('div')[0];
-                const content = main_div.getElementsByTagName('div')[2].getElementsByTagName('table')[0];
+                const mainDiv = main.getElementsByTagName('div')[0];
+                const content = mainDiv.getElementsByTagName('div')[2].getElementsByTagName('table')[0];
                 const tds = content.getElementsByTagName('td');
-                user.now_rating = parseInt(tds[1].getElementsByTagName('span')[0].innerHTML);
-                user.highest_rating = parseInt(tds[2].getElementsByTagName('span')[0].innerHTML);
+                user.nowRating = parseInt(tds[1].getElementsByTagName('span')[0].innerHTML);
+                user.maxRating = parseInt(tds[2].getElementsByTagName('span')[0].innerHTML);
                 user.rank = tds[0].innerHTML;
-                user.contest_number = parseInt(tds[3].innerHTML);
+                user.contestNumber = parseInt(tds[3].innerHTML);
             }).catch(error => {
                 console.error(error)
                 status = error.toString();
@@ -325,32 +324,32 @@ export namespace Codeforces {
     }
 
     class UserProfile {
-        user_name: string;
-        now_rating: number;
-        max_rating: number;
+        userName: string;
+        nowRating: number;
+        maxRating: number;
         rank: string;
-        max_rank: string;
+        maxRank: string;
 
-        constructor(user_name: string) {
-            this.user_name = user_name;
+        constructor(userName: string) {
+            this.userName = userName;
         }
 
         setValueByUser(user: User): void {
-            this.user_name = user.handle;
-            this.now_rating = user.rating;
-            this.max_rating = user.maxRating;
+            this.userName = user.handle;
+            this.nowRating = user.rating;
+            this.maxRating = user.maxRating;
             this.rank = user.rank;
-            this.max_rank = user.maxRank;
+            this.maxRank = user.maxRank;
         }
 
         toString() {
             let res: string = "";
-            res += `昵称: ${this.user_name}\n`
-            res += `rating: ${this.now_rating}\n`
+            res += `昵称: ${this.userName}\n`
+            res += `rating: ${this.nowRating}\n`
             res += `等级: ${this.rank}\n`
-            res += `最高rating: ${this.max_rating}\n`
-            res += `最高等级: ${this.max_rank}\n`
-            if (this.now_rating >= 2600) {
+            res += `最高rating: ${this.maxRating}\n`
+            res += `最高等级: ${this.maxRank}\n`
+            if (this.nowRating >= 2600) {
                 res += '大神啊！\n'
             }
             return res;
@@ -390,12 +389,12 @@ export namespace Codeforces {
 
     /**
      * 通过用户名获取用户在Codeforces上的竞赛数据
-     * @param user UserProfile对象，user_name需要提前存入
+     * @param user UserProfile对象，userName需要提前存入
      * @returns 异步程序的执行状态，无异常返回'OK'，否则返回错误信息
      */
     async function getProfileData(userProfile: UserProfile) {
         let status = "OK";
-        await CodeforcesAPI.call("user.info", { handles: userProfile.user_name }).then(response => {
+        await CodeforcesAPI.call("user.info", { handles: userProfile.userName }).then(response => {
             if (response.status === "OK") {
                 const user: User = response.result[0];
                 if (user.rating === undefined) {
