@@ -44,6 +44,12 @@ export function apply(ctx: Context, config: Config) {
     }
   });
 
+  ctx.middleware((session, next) => {
+    // 删除开头对机器人的at文本，让message监听在qq群聊环境中能正常工作
+    session.content = Tools.deleteSelfAdd(session.content, session.bot.selfId);
+    return next();
+  }, true)
+
   /**
    * 实现早安功能
    */
@@ -108,19 +114,30 @@ export function apply(ctx: Context, config: Config) {
     });
 
   /**
-   * 算法竞赛指令，调用相关函数获取支持查询的oj最近的一场竞赛，总结起来返回
+   * 算法竞赛总指令，方便统一查看指令，以及让help菜单不那么臃肿
    */
-  ctx.command('算法竞赛', '查看最近竞赛').alias('acm')
+  ctx.command('算法竞赛', '使用"help 算法竞赛"查看更多指令')
+    .action((_, message) => {
+      return '使用"help 算法竞赛"查看更多指令';
+    })
+
+  /**
+   * 最近竞赛指令，调用相关函数获取支持查询的oj最近的一场竞赛，总结起来返回
+   */
+  ctx.command('算法竞赛')
+    .subcommand('最近竞赛', '查看最近竞赛').alias('acm')
     .usage('目前支持查询的竞赛oj：牛客、Atcoder、CodeForces')
     .usage('总查询只会查各个oj的最近一场竞赛，想看更多请单独查找')
     .action(async (_, message) => {
       return `最近的竞赛：\n牛客： \n${await Niuke.getContest(0)}\n\nAtcoder： \n${await Atcoder.getContest(0)}\n\nCodeforces：\n${await Codeforces.getContest(0)}`;
     })
 
+
   /**
    * 牛客竞赛指令，调用相关函数获取牛客竞赛最近的三场竞赛
    */
-  ctx.command('牛客竞赛', '查看牛客最近竞赛').alias('niuke')
+  ctx.command('算法竞赛')
+    .subcommand('牛客竞赛', '查看牛客最近竞赛').alias('niuke')
     .usage('查询牛客竞赛的最近三场比赛')
     .action(async (_, message) => {
       let contests: string[] = ['', '', ''];
@@ -131,7 +148,8 @@ export function apply(ctx: Context, config: Config) {
       return `最近的牛客竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
     });
 
-  ctx.command('牛客个人信息 <userName:string>', '查询牛客上指定用户的信息').alias('niukeProfile')
+  ctx.command('算法竞赛')
+    .subcommand('牛客个人信息 <userName:string>', '查询牛客上指定用户的信息').alias('niukeProfile')
     .action(async (_, userName) => {
       return Niuke.getProfile(userName);
     })
@@ -139,9 +157,9 @@ export function apply(ctx: Context, config: Config) {
   /**
    * Atcoder竞赛指令，调用相关函数获取Atcoder最近的三场竞赛
    */
-  ctx.command('Atcoder竞赛', '查看Atcoder最近竞赛').alias('atc')
+  ctx.command('算法竞赛')
+    .subcommand('Atcoder竞赛', '查看Atcoder最近竞赛').alias('atc')
     .usage('查询Atcoder的最近三场比赛')
-    .usage('注：bot显示时间为北京时间，在Atcoder上看到的可能是日本时间或是别的什么时间，想参加竞赛务必确认好时间')
     .action(async (_, message) => {
       let contests: string[] = ['', '', '']
       for (let i: number = 0; i < 3; i++) {
@@ -155,7 +173,8 @@ export function apply(ctx: Context, config: Config) {
    * 查询Atcoder用户的个人信息
    * 有待添加默认值功能
    */
-  ctx.command('Atcoder个人信息 <userName:string>', '查询Atcoder上指定用户的信息').alias('atcprofile')
+  ctx.command('算法竞赛')
+    .subcommand('Atcoder个人信息 <userName:string>', '查询Atcoder上指定用户的信息').alias('atcprofile')
     .action(async (_, userName: string) => {
       if (userName === undefined) {
         return '给个名字吧朋友，不然我查谁呢';
@@ -167,7 +186,8 @@ export function apply(ctx: Context, config: Config) {
   /**
    * Codeforces竞赛指令，调用相关函数获取Codeforces竞赛最近的三场竞赛
    */
-  ctx.command('Codeforces竞赛', '查看Codeforces最近竞赛').alias('cf')
+  ctx.command('算法竞赛')
+    .subcommand('Codeforces竞赛', '查看Codeforces最近竞赛').alias('cf')
     .usage('查询Codeforces竞赛的最近三场比赛')
     .action(async (_, message) => {
       let contests: string[] = ['', '', ''];
@@ -181,7 +201,8 @@ export function apply(ctx: Context, config: Config) {
   /**
    * 查询CodeForces用户的个人信息
    */
-  ctx.command('Codeforces个人信息 <userName:string>', '查询Codeforces上指定用户的信息').alias('cfprofile')
+  ctx.command('算法竞赛')
+    .subcommand('Codeforces个人信息 <userName:string>', '查询Codeforces上指定用户的信息').alias('cfprofile')
     .action(async (_, userName) => {
       return Codeforces.getProfile(userName);
     });

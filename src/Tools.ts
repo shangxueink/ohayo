@@ -23,4 +23,23 @@ export namespace Tools {
         let length: number = args.length;
         return args[getRandomInt(0, length - 1)];
     }
+
+    /**
+     * 删除消息开头对机器人的at文本
+     * @param content 收到的消息
+     * @param id botId
+     * @returns 删除at机器人文本后的消息文本，没有at文本则原样返回
+     */
+    export function deleteSelfAdd(content: string, id: string) {
+        const startIndex = content.indexOf("<at");
+        const endIndex = content.indexOf("/>");
+        if (startIndex !== -1 && endIndex !== -1) {
+            const startIdIndex = content.indexOf('id="')
+            const endIdIndex = (content.indexOf('" ') === -1) ? content.indexOf('"/') : content.indexOf('" ');
+            if (startIdIndex !== -1 && endIdIndex !== -1 && content.substring(startIdIndex + 4, endIdIndex) === id) {
+                content = content.substring(endIndex + 3);
+            }
+        }
+        return content;
+    }
 }
