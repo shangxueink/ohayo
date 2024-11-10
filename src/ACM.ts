@@ -9,12 +9,26 @@ const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
 
 export const name = 'ACM'
 
+declare module 'koishi' {
+    interface Binding {
+        niukeName: string,
+        atcName: string,
+        cfName: string
+    }
+}
+
 /**
  * 算法竞赛插件主体
  * @param ctx 
  * @param config 配置参数
  */
 export function apply(ctx: Context, config: Config) {
+    ctx.model.extend('binding', {
+        niukeName: 'string',
+        atcName: 'string',
+        cfName: 'string'
+    })
+
     Codeforces.setCredentials(config.key, config.secret);
 
     // 算法竞赛总指令，方便统一查看指令，以及让help菜单不那么臃肿
@@ -44,8 +58,26 @@ export function apply(ctx: Context, config: Config) {
         });
 
     ctx.command('算法竞赛')
+        .subcommand('牛客绑定 <userName:string>', '绑定牛客昵称').alias('niukebind')
+        .usage('绑定成功后可以通过"/牛客个人信息"指令不传入参数查到对应信息')
+        .action(async (_, userName) => {
+            if (userName == undefined) return `给个名字吧朋友，不然我查谁呢`
+            let userId: string = _.session.event.user.id;
+            await ctx.database.set('binding', { pid: userId }, { niukeName: userName })
+            return "绑定成功";
+        })
+
+    ctx.command('算法竞赛')
         .subcommand('牛客个人信息 <userName:string>', '查询牛客上指定用户的信息').alias('niukeProfile')
         .action(async (_, userName) => {
+            if (userName === undefined) {
+                let userId: string = _.session.event.user.id;
+                let userData = await ctx.database.get('binding', { pid: userId })
+                if (userData.length === 0 || userData[0].niukeName === undefined) {
+                    return `给个名字吧朋友，不然我查谁呢`;
+                }
+                userName = userData[0].niukeName;
+            }
             return Niuke.getProfile(userName);
         })
 
@@ -62,12 +94,26 @@ export function apply(ctx: Context, config: Config) {
         })
 
     ctx.command('算法竞赛')
+        .subcommand('Atcoder绑定 <userName:string>', '绑定Atcoder昵称').alias('atcbind')
+        .usage('绑定成功后可以通过"/Atcoder个人信息"指令不传入参数查到对应信息')
+        .action(async (_, userName) => {
+            if (userName == undefined) return `给个名字吧朋友，不然我查谁呢`
+            let userId: string = _.session.event.user.id;
+            await ctx.database.set('binding', { pid: userId }, { atcName: userName })
+            return "绑定成功";
+        })
+
+    ctx.command('算法竞赛')
         .subcommand('Atcoder个人信息 <userName:string>', '查询Atcoder上指定用户的信息').alias('atcprofile')
         .action(async (_, userName: string) => {
             if (userName === undefined) {
-                return '给个名字吧朋友，不然我查谁呢';
+                let userId: string = _.session.event.user.id;
+                let userData = await ctx.database.get('binding', { pid: userId })
+                if (userData.length === 0 || userData[0].atcName === undefined) {
+                    return `给个名字吧朋友，不然我查谁呢`;
+                }
+                userName = userData[0].atcName;
             }
-
             return await Atcoder.getProfile(userName);
         })
 
@@ -84,8 +130,26 @@ export function apply(ctx: Context, config: Config) {
         });
 
     ctx.command('算法竞赛')
+        .subcommand('Codeforces绑定 <userName:string>', '绑定Codeforces昵称').alias('cfbind')
+        .usage('绑定成功后可以通过"/Codeforces个人信息"指令不传入参数查到对应信息')
+        .action(async (_, userName) => {
+            if (userName == undefined) return `给个名字吧朋友，不然我查谁呢`
+            let userId: string = _.session.event.user.id;
+            await ctx.database.set('binding', { pid: userId }, { cfName: userName })
+            return "绑定成功";
+        })
+
+    ctx.command('算法竞赛')
         .subcommand('Codeforces个人信息 <userName:string>', '查询Codeforces上指定用户的信息').alias('cfprofile')
         .action(async (_, userName) => {
+            if (userName === undefined) {
+                let userId: string = _.session.event.user.id;
+                let userData = await ctx.database.get('binding', { pid: userId })
+                if (userData.length === 0 || userData[0].cfName === undefined) {
+                    return `给个名字吧朋友，不然我查谁呢`;
+                }
+                userName = userData[0].cfName;
+            }
             return Codeforces.getProfile(userName);
         });
 }
