@@ -1,9 +1,94 @@
+import { Context } from 'koishi'
+import { Config } from './index';
 import { JSDOM } from 'jsdom'
 import { CodeforcesAPI } from "codeforces-api-ts"
 import { User } from 'codeforces-api-ts/dist/types';
 
 // html转DOM元素进行操作的依赖
 const { window } = new JSDOM(`<!DOCTYPE html><p>Hello world</p>`);
+
+export const name = 'ACM'
+
+/**
+ * 算法竞赛插件主体
+ * @param ctx 
+ * @param config 配置参数
+ */
+export function apply(ctx: Context, config: Config) {
+    Codeforces.setCredentials(config.key, config.secret);
+
+    // 算法竞赛总指令，方便统一查看指令，以及让help菜单不那么臃肿
+    ctx.command('算法竞赛', '使用"help 算法竞赛"查看更多指令')
+        .action((_, message) => {
+            return '使用"help 算法竞赛"查看更多指令';
+        })
+
+    ctx.command('算法竞赛')
+        .subcommand('最近竞赛', '查看最近竞赛').alias('acm')
+        .usage('目前支持查询的竞赛oj：牛客、Atcoder、CodeForces')
+        .usage('总查询只会查各个oj的最近一场竞赛，想看更多请单独查找')
+        .action(async (_, message) => {
+            return `最近的竞赛：\n牛客： \n${await Niuke.getContest(0)}\n\nAtcoder： \n${await Atcoder.getContest(0)}\n\nCodeforces：\n${await Codeforces.getContest(0)}`;
+        })
+
+    ctx.command('算法竞赛')
+        .subcommand('牛客竞赛', '查看牛客最近竞赛').alias('niuke')
+        .usage('查询牛客竞赛的最近三场比赛')
+        .action(async (_, message) => {
+            let contests: string[] = ['', '', ''];
+            for (let i: number = 0; i < 3; i++) {
+                contests[i] = await Niuke.getContest(i);
+            }
+
+            return `最近的牛客竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
+        });
+
+    ctx.command('算法竞赛')
+        .subcommand('牛客个人信息 <userName:string>', '查询牛客上指定用户的信息').alias('niukeProfile')
+        .action(async (_, userName) => {
+            return Niuke.getProfile(userName);
+        })
+
+    ctx.command('算法竞赛')
+        .subcommand('Atcoder竞赛', '查看Atcoder最近竞赛').alias('atc')
+        .usage('查询Atcoder的最近三场比赛')
+        .action(async (_, message) => {
+            let contests: string[] = ['', '', '']
+            for (let i: number = 0; i < 3; i++) {
+                contests[i] = await Atcoder.getContest(i);
+            }
+
+            return `最近的Atcoder竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
+        })
+
+    ctx.command('算法竞赛')
+        .subcommand('Atcoder个人信息 <userName:string>', '查询Atcoder上指定用户的信息').alias('atcprofile')
+        .action(async (_, userName: string) => {
+            if (userName === undefined) {
+                return '给个名字吧朋友，不然我查谁呢';
+            }
+
+            return await Atcoder.getProfile(userName);
+        })
+
+    ctx.command('算法竞赛')
+        .subcommand('Codeforces竞赛', '查看Codeforces最近竞赛').alias('cf')
+        .usage('查询Codeforces竞赛的最近三场比赛')
+        .action(async (_, message) => {
+            let contests: string[] = ['', '', ''];
+            for (let i: number = 0; i < 3; i++) {
+                contests[i] = await Codeforces.getContest(i);
+            }
+
+            return `最近的Codeforces竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
+        });
+
+    ctx.command('算法竞赛')
+        .subcommand('Codeforces个人信息 <userName:string>', '查询Codeforces上指定用户的信息').alias('cfprofile')
+        .action(async (_, userName) => {
+            return Codeforces.getProfile(userName);
+        });
+}
 
 /**
  * 牛客相关函数
