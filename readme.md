@@ -15,10 +15,13 @@
 
 ### 算法竞赛
 
-- 算法竞赛 查看最近竞赛
+- 最近竞赛 查看最近竞赛
 - 牛客个人信息 查询牛客上指定用户的信息
 - 牛客竞赛 查看牛客最近竞赛
+- 牛客绑定 绑定牛客昵称
 - Atcoder个人信息 查询Atcoder上指定用户的信息
 - Atcoder竞赛 查看Atcoder最近竞赛
+- Atcoder绑定 绑定Atcoder昵称
 - CodeForces个人信息 查询CodeForces上指定用户的信息
 - CodeForces竞赛 查看Codeforces最近竞赛
+- Codeforces绑定 绑定Codeforces昵称

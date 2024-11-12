@@ -427,6 +427,14 @@ export namespace Atcoder {
                 const main = doc.getElementById('main-container');
                 const mainDiv = main.getElementsByTagName('div')[0];
                 const content = mainDiv.getElementsByTagName('div')[2].getElementsByTagName('table')[0];
+                // 匹配用户存在但是没有rating信息的情况
+                if (content === undefined) {
+                    user.nowRating = 0;
+                    user.maxRating = 0;
+                    user.rank = 'NaN';
+                    user.contestNumber = 0;
+                    return;
+                }
                 const tds = content.getElementsByTagName('td');
                 user.nowRating = parseInt(tds[1].getElementsByTagName('span')[0].innerHTML);
                 user.maxRating = parseInt(tds[2].getElementsByTagName('span')[0].innerHTML);
@@ -485,10 +493,10 @@ export namespace Codeforces {
 
         setValueByUser(user: User): void {
             this.userName = user.handle;
-            this.nowRating = user.rating;
-            this.maxRating = user.maxRating;
-            this.rank = user.rank;
-            this.maxRank = user.maxRank;
+            this.nowRating = (user.rating === undefined) ? 0 : user.rating;
+            this.maxRating = (user.maxRating === undefined) ? 0 : user.maxRating;
+            this.rank = (user.rank === undefined) ? "Unrated" : user.rank;
+            this.maxRank = (user.maxRank === undefined) ? "Unrated" : user.maxRank;
         }
 
         toString() {
@@ -521,6 +529,7 @@ export namespace Codeforces {
                     while (contests[begin + 1].phase !== 'FINISHED') {
                         begin++;
                     }
+
                     let name: string = contests[begin - index].name;
                     for (let i: number = 0; i < name.length - 1; i++) {
                         if (name[i] === '.' && name[i + 1] !== ' ') {
@@ -528,6 +537,7 @@ export namespace Codeforces {
                             name = name.slice(0, i + 1) + ' ' + name.slice(i + 1);
                         }
                     }
+
                     message += `${name}\n`;
                     const date: Date = new Date(contests[begin - index].startTimeSeconds * 1000);
                     const diff = new Date(Math.abs(contests[begin - index].relativeTimeSeconds * 1000));
@@ -552,18 +562,14 @@ export namespace Codeforces {
         await CodeforcesAPI.call("user.info", { handles: userProfile.userName }).then(response => {
             if (response.status === "OK") {
                 const user: User = response.result[0];
-                if (user.rating === undefined) {
-                    status = "此用户不存在";
-                    return;
-                }
                 userProfile.setValueByUser(user);
             } else {
                 if (response.comment === "apiKey: Incorrect signature") {
                     status = "配置项的secret不正确"
                 } else if (response.comment === "apiKey: Incorrect API key") {
                     status = "配置项的key不正确"
-                } else if (response.comment === "handles: Field should not be empty") {
-                    status = "用户名不能为空值"
+                } else if (response.comment === `handles: User with handle ${userProfile.userName} not found`) {
+                    status = `此用户不存在`
                 } else {
                     status = response.comment;
                 }
