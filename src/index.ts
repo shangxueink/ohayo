@@ -168,7 +168,7 @@ export function apply(ctx: Context, config: Config) {
 
   ctx.command('报时', '回复当前时间')
     .usage('使用北京时间')
-    .action((_, message) => {
+    .action(({ session }) => {
       const now: Date = new Date();
       const year: number = now.getFullYear();
       const month: number = now.getMonth() + 1;
@@ -181,7 +181,7 @@ export function apply(ctx: Context, config: Config) {
 
   ctx.command('帮我选 [..args]', '拿不定主意试试让bot帮你选吧').alias('roll')
     .usage('将想要选择的选项使用空格隔开，bot将会随机选择其一，如果什么都不传则返回0-10之间的随机数')
-    .action((_, ...args: string[]) => {
+    .action(({ session }, ...args: string[]) => {
       if (args.length === 0) {
         return `这边建议您选择 ${Tools.getRandomInt(1, 10)} 呢`;
       }

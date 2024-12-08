@@ -25,3 +25,4 @@
 - CodeForces个人信息 查询CodeForces上指定用户的信息
 - CodeForces竞赛 查看Codeforces最近竞赛
 - Codeforces绑定 绑定Codeforces昵称
+- 洛谷竞赛 查看洛谷最近竞赛

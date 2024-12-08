@@ -1,4 +1,5 @@
-import { Context } from 'koishi'
+import { Context, Logger, segment } from 'koishi'
+import { } from "koishi-plugin-puppeteer"
 import { Config } from './index';
 import { JSDOM } from 'jsdom'
 import { CodeforcesAPI } from "codeforces-api-ts"
@@ -17,6 +18,8 @@ declare module 'koishi' {
     }
 }
 
+export const logger = new Logger("ACM");
+
 /**
  * 算法竞赛插件主体
  * @param ctx 
@@ -33,7 +36,7 @@ export function apply(ctx: Context, config: Config) {
 
     // 算法竞赛总指令，方便统一查看指令，以及让help菜单不那么臃肿
     ctx.command('算法竞赛', '使用"help 算法竞赛"查看更多指令')
-        .action((_, message) => {
+        .action(({ session }) => {
             return '使用"help 算法竞赛"查看更多指令';
         })
 
@@ -41,37 +44,41 @@ export function apply(ctx: Context, config: Config) {
         .subcommand('最近竞赛', '查看最近竞赛').alias('acm')
         .usage('目前支持查询的竞赛oj：牛客、Atcoder、CodeForces')
         .usage('总查询只会查各个oj的最近一场竞赛，想看更多请单独查找')
-        .action(async (_, message) => {
+        .action(async ({ session }) => {
             return `最近的竞赛：\n牛客： \n${await Niuke.getContest(0)}\n\nAtcoder： \n${await Atcoder.getContest(0)}\n\nCodeforces：\n${await Codeforces.getContest(0)}`;
         })
 
     ctx.command('算法竞赛')
         .subcommand('牛客竞赛', '查看牛客最近竞赛').alias('niuke')
         .usage('查询牛客竞赛的最近三场比赛')
-        .action(async (_, message) => {
-            let contests: string[] = ['', '', ''];
-            for (let i: number = 0; i < 3; i++) {
-                contests[i] = await Niuke.getContest(i);
+        .action(async ({ session }) => {
+            try {
+                let page = await ctx.puppeteer.page();
+                await page.setViewport({ width: 1920, height: 1080 });
+                await page.goto('https://ac.nowcoder.com/')
+                await page.waitForNetworkIdle();
+                const contestBox = await page.$('.home-match-item');
+                return segment.image(await contestBox.screenshot(), "image/png");
+            } catch (e) {
+                console.error(e);
             }
-
-            return `最近的牛客竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
         });
 
     ctx.command('算法竞赛')
         .subcommand('牛客绑定 <userName:string>', '绑定牛客昵称').alias('niukebind')
         .usage('绑定成功后可以通过"/牛客个人信息"指令不传入参数查到对应信息')
-        .action(async (_, userName) => {
+        .action(async ({ session }, userName) => {
             if (userName == undefined) return `给个名字吧朋友，不然我查谁呢`
-            let userId: string = _.session.event.user.id;
+            let userId: string = session.event.user.id;
             await ctx.database.set('binding', { pid: userId }, { niukeName: userName })
             return "绑定成功";
         })
 
     ctx.command('算法竞赛')
         .subcommand('牛客个人信息 <userName:string>', '查询牛客上指定用户的信息').alias('niukeProfile')
-        .action(async (_, userName) => {
+        .action(async ({ session }, userName) => {
             if (userName === undefined) {
-                let userId: string = _.session.event.user.id;
+                let userId: string = session.event.user.id;
                 let userData = await ctx.database.get('binding', { pid: userId })
                 if (userData.length === 0 || userData[0].niukeName === undefined) {
                     return `给个名字吧朋友，不然我查谁呢`;
@@ -83,31 +90,35 @@ export function apply(ctx: Context, config: Config) {
 
     ctx.command('算法竞赛')
         .subcommand('Atcoder竞赛', '查看Atcoder最近竞赛').alias('atc')
-        .usage('查询Atcoder的最近三场比赛')
-        .action(async (_, message) => {
-            let contests: string[] = ['', '', '']
-            for (let i: number = 0; i < 3; i++) {
-                contests[i] = await Atcoder.getContest(i);
+        .usage('查询Atcoder的最近十场比赛')
+        .action(async ({ session }) => {
+            try {
+                let page = await ctx.puppeteer.page();
+                await page.setViewport({ width: 1920, height: 1080 });
+                await page.goto('https://atcoder.jp/contests?lang=ja')
+                await page.waitForNetworkIdle();
+                const contestBox = await page.$('#contest-table-upcoming');
+                return segment.image(await contestBox.screenshot(), "image/png");
+            } catch (e) {
+                console.error(e);
             }
-
-            return `最近的Atcoder竞赛：\n${contests[0]}\n\n${contests[1]}\n\n${contests[2]}`;
         })
 
     ctx.command('算法竞赛')
         .subcommand('Atcoder绑定 <userName:string>', '绑定Atcoder昵称').alias('atcbind')
         .usage('绑定成功后可以通过"/Atcoder个人信息"指令不传入参数查到对应信息')
-        .action(async (_, userName) => {
+        .action(async ({ session }, userName) => {
             if (userName == undefined) return `给个名字吧朋友，不然我查谁呢`
-            let userId: string = _.session.event.user.id;
+            let userId: string = session.event.user.id;
             await ctx.database.set('binding', { pid: userId }, { atcName: userName })
             return "绑定成功";
         })
 
     ctx.command('算法竞赛')
         .subcommand('Atcoder个人信息 <userName:string>', '查询Atcoder上指定用户的信息').alias('atcprofile')
-        .action(async (_, userName: string) => {
+        .action(async ({ session }, userName: string) => {
             if (userName === undefined) {
-                let userId: string = _.session.event.user.id;
+                let userId: string = session.event.user.id;
                 let userData = await ctx.database.get('binding', { pid: userId })
                 if (userData.length === 0 || userData[0].atcName === undefined) {
                     return `给个名字吧朋友，不然我查谁呢`;
@@ -120,7 +131,7 @@ export function apply(ctx: Context, config: Config) {
     ctx.command('算法竞赛')
         .subcommand('Codeforces竞赛', '查看Codeforces最近竞赛').alias('cf')
         .usage('查询Codeforces竞赛的最近三场比赛')
-        .action(async (_, message) => {
+        .action(async ({ session }) => {
             let contests: string[] = ['', '', ''];
             for (let i: number = 0; i < 3; i++) {
                 contests[i] = await Codeforces.getContest(i);
@@ -132,18 +143,18 @@ export function apply(ctx: Context, config: Config) {
     ctx.command('算法竞赛')
         .subcommand('Codeforces绑定 <userName:string>', '绑定Codeforces昵称').alias('cfbind')
         .usage('绑定成功后可以通过"/Codeforces个人信息"指令不传入参数查到对应信息')
-        .action(async (_, userName) => {
+        .action(async ({ session }, userName) => {
             if (userName == undefined) return `给个名字吧朋友，不然我查谁呢`
-            let userId: string = _.session.event.user.id;
+            let userId: string = session.event.user.id;
             await ctx.database.set('binding', { pid: userId }, { cfName: userName })
             return "绑定成功";
         })
 
     ctx.command('算法竞赛')
         .subcommand('Codeforces个人信息 <userName:string>', '查询Codeforces上指定用户的信息').alias('cfprofile')
-        .action(async (_, userName) => {
+        .action(async ({ session }, userName) => {
             if (userName === undefined) {
-                let userId: string = _.session.event.user.id;
+                let userId: string = session.event.user.id;
                 let userData = await ctx.database.get('binding', { pid: userId })
                 if (userData.length === 0 || userData[0].cfName === undefined) {
                     return `给个名字吧朋友，不然我查谁呢`;
@@ -151,7 +162,23 @@ export function apply(ctx: Context, config: Config) {
                 userName = userData[0].cfName;
             }
             return Codeforces.getProfile(userName);
-        });
+        })
+
+    ctx.command('算法竞赛')
+        .subcommand('洛谷竞赛', '查看洛谷最近竞赛').alias('luogu')
+        .usage('查询洛谷的最近六场比赛')
+        .action(async ({ session }) => {
+            try {
+                let page = await ctx.puppeteer.page();
+                await page.setViewport({ width: 1060, height: 1080 });
+                await page.goto('https://www.luogu.com.cn/')
+                await page.waitForNetworkIdle();
+                const contestBox = await (await page.$('.am-u-lg-9')).$(".lg-article");
+                return segment.image(await contestBox.screenshot(), "image/png");
+            } catch (e) {
+                console.error(e);
+            }
+        })
 }
 
 /**
@@ -486,6 +513,7 @@ export namespace Codeforces {
         maxRating: number;
         rank: string;
         maxRank: string;
+        iconUrl: string;
 
         constructor(userName: string) {
             this.userName = userName;
@@ -497,6 +525,7 @@ export namespace Codeforces {
             this.maxRating = (user.maxRating === undefined) ? 0 : user.maxRating;
             this.rank = (user.rank === undefined) ? "Unrated" : user.rank;
             this.maxRank = (user.maxRank === undefined) ? "Unrated" : user.maxRank;
+            this.iconUrl = user.titlePhoto;
         }
 
         toString() {
