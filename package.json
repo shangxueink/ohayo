@@ -1,7 +1,7 @@
 {
   "name": "@xiaozhedesu/koishi-plugin-ohayo",
   "description": "早安呐~",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -23,8 +23,6 @@
     "koishi",
     "plugin",
     "ohayo",
-    "acm",
-    "算法竞赛",
     "早安"
   ],
   "peerDependencies": {
@@ -36,8 +34,5 @@
       "zh": "早安呐~"
     }
   },
-  "dependencies": {
-    "codeforces-api-ts": "^3.0.1",
-    "jsdom": "^25.0.1"
-  }
+  "dependencies": {}
 }

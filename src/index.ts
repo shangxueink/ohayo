@@ -1,21 +1,14 @@
-import { Context, Schema, h } from 'koishi'
+import { Context, Schema, h, Logger } from 'koishi'
 import { Tools } from './Tools'
-import * as ACM from './ACM'
 
 export const name = 'ohayo'
 
-export interface Config {
-  key: string
-  secret: string
-}
+export interface Config { }
+
+export const logger = new Logger("ohayo");
 
 // 参数
-export const Config: Schema<Config> = Schema.object({
-  key: Schema.string().role('secret')
-    .description('从Codeforces上获取的使用官方api使用的key'),
-  secret: Schema.string().role('secret')
-    .description('从Codeforces上获取的使用官方api使用的secret')
-}).description('Codeforces访问设置');
+export const Config: Schema<Config> = Schema.object({});
 
 // 预设的早安回复语句
 const ohayo: string[] = ['ohayo', '哦哈哟', '早', '早安呀', '你也早', '早上好', '早尚郝']
@@ -189,6 +182,5 @@ export function apply(ctx: Context, config: Config) {
       return `这边建议您选择 ${Tools.roll(args)} 呢`;
     });
 
-  // 算法竞赛插件
-  ctx.plugin(ACM, config);
+  logger.info('open success');
 }
