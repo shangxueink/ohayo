@@ -71,22 +71,17 @@ namespace DailyTask {
  */
 export function apply(ctx: Context, config: Config) {
   ctx.on('message', session => {
+    const content = h.select(session.elements, 'text').join('')
     // 判断收到的消息可不可以触发早安回复
-    if (isOhayo(session.content)) {
+    if (isOhayo(content)) {
       session.execute('早安');
     }
 
     // 判断收到的消息可不可以触发晚安回复
-    if (isOyasumi(session.content)) {
+    if (isOyasumi(content)) {
       session.execute('晚安');
     }
   });
-
-  // 删除开头对机器人的at文本，让message监听在qq群聊环境中能正常工作
-  ctx.middleware((session, next) => {
-    session.content = Tools.deleteSelfAdd(session.content, session.bot.selfId);
-    return next();
-  }, true)
 
   DailyTask.init()
 
